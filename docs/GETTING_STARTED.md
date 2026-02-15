@@ -150,21 +150,21 @@ Epoch 1/100: 100%|████████| 25/25 [00:03<00:00, 7.23it/s]
 Epoch 100/100: Precision 0.982, Recall 0.818, mAP@50 0.922
 
 ✅ Training complete!
-   Best model: models/checkpoints/my_detector_v1/weights/best.pt
+  Best model: runs/detect/models/checkpoints/my_detector_v1/weights/best.pt
 ```
 
 ### Step 5: Validate Results
 
 ```bash
 # Check training metrics
-cat models/checkpoints/my_detector_v1/results.csv
+cat runs/detect/models/checkpoints/my_detector_v1/results.csv
 
 # View training curves (requires matplotlib)
 python -c "
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.read_csv('models/checkpoints/my_detector_v1/results.csv')
+df = pd.read_csv('runs/detect/models/checkpoints/my_detector_v1/results.csv')
 df[['metrics/precision(B)', 'metrics/recall(B)', 'metrics/mAP50(B)']].plot()
 plt.savefig('training_metrics.png')
 print('Saved: training_metrics.png')
@@ -175,24 +175,49 @@ print('Saved: training_metrics.png')
 
 **For Pi 5 + Hailo-8:**
 
+Recommended (scripted, non-expert path):
+
+```bash
+# Reliable default path (512x512)
+./scripts/train_pi5_hailo.sh -v <roboflow_version> -n <run_name>
+
+# Optional: try 640 first, auto-fallback to 512 if Hailo compile fails
+./scripts/train_pi5_hailo.sh -v <roboflow_version> -n <run_name> --try-640
+```
+
+Manual path:
+
 ```bash
 python src/export/export.py \
-    --model models/checkpoints/my_detector_v1/weights/best.pt \
-    --device pi5_hailo8
+  --model runs/detect/models/checkpoints/my_detector_v1/weights/best.pt \
+  --device pi5_hailo8 \
+  --imgsz 512 \
+  --output models/exported/my_detector_v1/pi5_hailo8
 ```
 
 Then compile to .hef (requires Hailo Docker):
 
 ```bash
 python docker/run_hailo_compile.py \
-    --onnx models/exported/best/pi5_hailo8/best.onnx
+  --onnx models/exported/my_detector_v1/pi5_hailo8/best.onnx \
+  --docker-image hailo8_ai_sw_suite_2025-10:1
+```
+
+Notes:
+- 512 is the current reliable default for Hailo compilation.
+- 640 can work in some setups, but may fail with `Agent infeasible` depending on model graph + DFC version.
+
+If your environment uses a different local image tag, list available images first:
+
+```bash
+docker images | grep -i hailo
 ```
 
 **For OAK-D Lite:**
 
 ```bash
 python src/export/export.py \
-    --model models/checkpoints/my_detector_v1/weights/best.pt \
+  --model runs/detect/models/checkpoints/my_detector_v1/weights/best.pt \
     --device oakd_lite \
     --compile  # Automatically compiles to .blob
 ```
@@ -201,7 +226,7 @@ python src/export/export.py \
 
 ```bash
 python src/export/export.py \
-    --model models/checkpoints/my_detector_v1/weights/best.pt \
+  --model runs/detect/models/checkpoints/my_detector_v1/weights/best.pt \
     --device jetson_orin_nano
 
 # Then SCP to Jetson and compile there
@@ -229,6 +254,10 @@ hardware:
 
 ### Step 8: Deploy to Robot
 
+`--camera` is the camera **name/key** from your robot YAML under `hardware.cameras`
+(for example `main_cam`, `gripper_cam`, `oakd_nav`).
+It is **not** a Linux device path like `/dev/video0`.
+
 ```bash
 # Dry run (validation only)
 python src/deployment/deploy.py \
@@ -242,6 +271,12 @@ python src/deployment/deploy.py \
     --model my_detector_v1 \
     --target yourrobot \
     --camera main_cam
+
+# Example for configs/robots/sigyn.yaml
+python src/deployment/deploy.py \
+  --model my_detector_v1 \
+  --target sigyn \
+  --camera gripper_cam
 ```
 
 **Expected output:**

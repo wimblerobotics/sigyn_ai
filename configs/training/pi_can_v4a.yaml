@@ -1,0 +1,22 @@
+# Auto-generated configuration for Pi 5 + Hailo-8
+# Generated: Sun 15 Feb 2026 10:07:18 AM PST
+# Dataset version: 4
+
+model:
+  size: "n"  # nano model for edge deployment
+
+dataset:
+  path: "datasets/roboflow_exports/fcc4.v4-yolov8"
+
+compute:
+  device: "auto"  # Auto-detect GPU/CPU
+  batch_size: "auto"  # Auto-detect based on GPU
+  workers: "auto"
+
+training:
+  epochs: 100
+  imgsz: 640  # Pi 5 + Hailo works well with 640x640
+
+output:
+  project_dir: "models/checkpoints"
+  run_name: "pi_can_v4a"

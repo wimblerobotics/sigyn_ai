@@ -11,7 +11,7 @@ model:
   # Options: n, s, m, l, x (nano to extra-large)
 
 dataset:
-  path: "datasets/roboflow_exports/FCC4.v4-pihat_640"
+  path: "/home/ros/sigyn_ai/datasets/roboflow_exports/FCC4.v4-yolov8"
   # Expected structure:
   #   FCC4.v4-pihat_640/
   #     data.yaml

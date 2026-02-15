@@ -7,6 +7,12 @@
 > ./scripts/deploy_oakd.sh -m <run_name>
 > ```
 >
+> Pi 5 + Hailo reliable path:
+>
+> ```bash
+> ./scripts/train_pi5_hailo.sh -v <roboflow_version> -n <run_name>
+> ```
+>
 > On robot:
 >
 > ```bash
@@ -56,33 +62,35 @@ python src/training/train.py --config configs/training/can_detector_pihat.yaml -
 ```bash
 # Export for Pi 5 + Hailo-8
 python src/export/export.py \
-    --model models/checkpoints/can_detector_pihat_v1/weights/best.pt \
-    --device pi5_hailo8
+    --model runs/detect/models/checkpoints/can_detector_pihat_v1/weights/best.pt \
+    --device pi5_hailo8 \
+    --imgsz 512 \
+    --output models/exported/can_detector_pihat_v1/pi5_hailo8
 
 # Export for OAK-D and auto-compile
 python src/export/export.py \
-    --model models/checkpoints/can_detector_pihat_v1/weights/best.pt \
+    --model runs/detect/models/checkpoints/can_detector_pihat_v1/weights/best.pt \
     --device oakd_lite \
     --compile
 
 # Export for Jetson
 python src/export/export.py \
-    --model models/checkpoints/can_detector_pihat_v1/weights/best.pt \
+    --model runs/detect/models/checkpoints/can_detector_pihat_v1/weights/best.pt \
     --device jetson_orin_nano
 ```
 
 ### Compile for Hailo (Docker)
 
 ```bash
-# Using wrapper script
-python docker/run_hailo_compile.py \
-    --onnx models/exported/best/pi5_hailo8/best.onnx
+# If your local image tag is this (common with Hailo package installs):
+#   hailo8_ai_sw_suite_2025-10:1
 
-# Manual Docker
-docker run --rm \
-    -v $(pwd)/models/exported/best/pi5_hailo8:/workspace \
-    hailo8_ai_sw_suite_2025-10 \
-    hailo compile --model /workspace/best.onnx --hw-arch hailo8 --output /workspace/best.hef
+# Using wrapper script (auto-detects Hailo CLI mode)
+python docker/run_hailo_compile.py \
+    --onnx models/exported/can_detector_pihat_v1/pi5_hailo8/best.onnx \
+    --docker-image hailo8_ai_sw_suite_2025-10:1
+
+# Tip: if your local image is `sigyn_ai_hailo:latest`, omit --docker-image
 ```
 
 ### Deploy to Robot
@@ -120,7 +128,7 @@ python src/deployment/deploy.py \
 - Raw captures: `datasets/raw_captures/<date>/`
 
 ### Models
-- Checkpoints: `models/checkpoints/<name>/weights/best.pt`
+- Checkpoints: `runs/detect/models/checkpoints/<name>/weights/best.pt`
 - Exported: `models/exported/<name>/<device>/`
 
 ## 🔧 Troubleshooting

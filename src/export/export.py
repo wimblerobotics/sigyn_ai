@@ -102,8 +102,8 @@ def export_to_onnx(model_path, device_config, output_dir, imgsz=None):
 def compile_hailo(onnx_path, device_config, output_dir):
     """Compile ONNX to Hailo .hef format using Docker."""
     print(f"\n🔨 Compiling for Hailo-8...")
-    print(f"   This requires the Hailo Docker container")
-    print(f"   See: docs/HAILO_COMPILATION.md")
+    print(f"   This requires a local Hailo Docker image")
+    print(f"   Build image: docker build -f docker/hailo_export.Dockerfile -t sigyn_ai_hailo:latest .")
     
     hailo_settings = device_config['export'].get('hailo_compilation', {})
     
@@ -133,13 +133,15 @@ hailo compile \\
     
     print(f"\n📝 Compilation script saved: {script_path}")
     print(f"\n📋 Manual steps required:")
-    print(f"   1. Start Hailo Docker container:")
-    print(f"      docker run -it --rm -v {Path.cwd()}:/workspace hailo8_ai_sw_suite_2025-10 bash")
-    print(f"   2. Inside container, navigate to:")
+    print(f"   1. Build local image (one-time):")
+    print(f"      docker build -f docker/hailo_export.Dockerfile -t sigyn_ai_hailo:latest .")
+    print(f"   2. Start Hailo Docker container:")
+    print(f"      docker run -it --rm -v {Path.cwd()}:/workspace sigyn_ai_hailo:latest bash")
+    print(f"   3. Inside container, navigate to:")
     print(f"      cd /workspace/{output_dir}")
-    print(f"   3. Run compilation script:")
+    print(f"   4. Run compilation script:")
     print(f"      ./compile_hailo.sh")
-    print(f"   4. Exit container when done")
+    print(f"   5. Exit container when done")
     print(f"\n   OR: Use the automated Docker wrapper:")
     print(f"      python docker/run_hailo_compile.py --onnx {onnx_path}")
 
