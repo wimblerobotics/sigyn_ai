@@ -1,0 +1,62 @@
+# Training configuration for CokeZero can detection on Pi 5 + Hailo-8
+#
+# This configuration is optimized for:
+# - Single class object detection (CokeZero-can)
+# - Target device: Raspberry Pi 5 with Hailo-8 AI HAT
+# - Input size: 640x640 (balanced speed/accuracy for Hailo-8)
+# - Gripper-mounted camera perspective
+
+model:
+  size: "n"  # YOLOv8n (nano) - fast inference on edge devices
+  # Options: n, s, m, l, x (nano to extra-large)
+
+dataset:
+  path: "datasets/roboflow_exports/FCC4.v4-pihat_640"
+  # Expected structure:
+  #   FCC4.v4-pihat_640/
+  #     data.yaml
+  #     train/images/
+  #     train/labels/
+  #     valid/images/
+  #     valid/labels/
+
+compute:
+  backend: "auto"  # auto, cuda, cpu
+  device: "auto"   # auto, cuda:0, cpu
+  precision: "fp16"  # fp32, fp16 (fp16 faster on modern GPUs)
+  batch_size: "auto"  # auto-detects based on VRAM, or specify integer
+  workers: "auto"     # auto-detects, or 0 for single-thread (safer)
+  enable_amp: true    # Automatic Mixed Precision (faster training)
+
+training:
+  epochs: 100
+  imgsz: 640  # Must match Hailo export size
+  optimizer: "auto"  # auto, SGD, Adam, AdamW
+  patience: 50  # Early stopping patience
+  save_period: -1  # Save checkpoint every N epochs (-1 = only best)
+  cache: false  # Cache images to RAM (faster but needs memory)
+  
+augmentation:
+  # Augmentation optimized for gripper-mounted camera view
+  # (stable orientation, varying lighting)
+  hsv_h: 0.015  # Hue augmentation (0.0-1.0)
+  hsv_s: 0.7    # Saturation augmentation
+  hsv_v: 0.4    # Value (brightness) augmentation
+  degrees: 10.0  # Rotation range ±10° (gripper not perfectly level)
+  translate: 0.1  # Translation ±10%
+  scale: 0.2      # Scale ±20%
+  fliplr: 0.0     # No horizontal flip (orientation consistent)
+  mosaic: 1.0     # Mosaic augmentation (excellent for detection)
+
+output:
+  project_dir: "models/checkpoints"
+  run_name: "can_detector_pihat_v1"
+  # Results will be saved to:
+  # models/checkpoints/can_detector_pihat_v1/weights/best.pt
+
+metadata:
+  description: "CokeZero can detector for Pi5+Hailo-8"
+  target_device: "pi5_hailo8"
+  classes: ["CokeZero-can"]
+  created_date: "2026-02-13"
+  author: "ros@amdc"

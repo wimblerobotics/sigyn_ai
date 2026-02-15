@@ -1,0 +1,104 @@
+# Robot configuration for Sigyn (original service robot)
+#
+# This configuration defines the vision systems and their
+# deployment targets on the Sigyn robot.
+
+robot:
+  name: "Sigyn"
+  identifier: "sigyn"
+  description: "Original Sigyn service robot - household manipulation tasks"
+  
+hardware:
+  computer:
+    hostname: "sigyn.local"
+    user: "ros"
+    architecture: "x86_64"
+    os: "Ubuntu 22.04"
+    ros_version: "jazzy"
+  
+  battery:
+    capacity_wh: 1000
+    nominal_voltage: 12
+    runtime_hours: 3  # Current runtime standing still
+  
+  cameras:
+    # Top-mounted OAK-D for navigation
+    oakd_nav:
+      device: "oakd_lite"
+      mount_location: "top"
+      purpose: "navigation"
+      fov_horizontal: 127  # degrees
+      fov_vertical: 79.8
+      resolution: [1920, 1080]
+      framerate_target: 15
+      
+      deployment:
+        host: "ros@sigyn.local"
+        model_dir: "~/sigyn_ws/src/Sigyn/yolo_oakd_test/resources/models/"
+        node_package: "yolo_oakd_test"
+        node_executable: "oakd_can_detector.py"
+    
+    # Gripper-mounted camera for manipulation
+    gripper_cam:
+      device: "pi5_hailo8"
+      mount_location: "gripper"
+      purpose: "manipulation"
+      remote_host: "sigynVision.local"
+      
+      deployment:
+        host: "ros@sigynVision.local"
+        model_dir: "~/pi_can_detector_ws/src/pi_can_detector/"
+        node_package: "pi_can_detector"
+
+tasks:
+  # Active tasks that use AI vision
+  can_detection:
+    description: "Detect and manipulate CokeZero cans"
+    cameras: ["gripper_cam", "oakd_nav"]
+    models:
+      gripper_cam: "can_detector_pihat"
+      oakd_nav: "can_detector_oakd"
+    priority: "high"
+    behavior_tree: "can_do_challenge/trees/find_and_manipulate_can.xml"
+  
+  floor_navigation:
+    description: "Navigate avoiding floor obstacles"
+    cameras: ["oakd_nav"]
+    models:
+      oakd_nav: "floor_obstacle_detector"
+    priority: "medium"
+    status: "planned"
+  
+  charger_docking:
+    description: "April tag detection for autonomous charging"
+    cameras: ["oakd_nav"]
+    models:
+      oakd_nav: "apriltag_detector"  # Not YOLO, uses OpenCV
+    priority: "low"
+    status: "planned"
+
+deployment_preferences:
+  # How to deploy models to this robot
+  method: "ssh"
+  backup_old_models: true
+  test_after_deploy: true
+  rollback_on_failure: true
+
+network:
+  # Network configuration for deployment
+  sigyn_main:
+    hostname: "sigyn.local"
+    ip: "auto"  # DHCP or from /etc/hosts
+    ssh_key: "~/.ssh/id_rsa"
+  
+  sigyn_vision:
+    hostname: "sigynVision.local"
+    ip: "auto"
+    ssh_key: "~/.ssh/id_rsa"
+
+notes: |
+  - Sigyn has two vision systems that need different models
+  - OAK-D runs on main robot computer (shared with Nav2, behavior trees)
+  - Pi 5 is remote vision computer connected via ROS 2 network
+  - Power budget is tight - 10W for vision is acceptable limit
+  - FPS requirements: gripper camera (20+ fps), nav camera (15+ fps)

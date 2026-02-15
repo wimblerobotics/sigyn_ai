@@ -1,0 +1,101 @@
+# Device configuration for Raspberry Pi 5 + Hailo-8 AI HAT
+#
+# This configuration defines the constraints and requirements
+# for deploying models to the Pi 5 with Hailo-8 accelerator.
+
+device:
+  name: "Raspberry Pi 5 + Hailo-8"
+  identifier: "pi5_hailo8"
+  architecture: "arm64"
+  accelerator: "hailo8"
+  
+specifications:
+  # Hailo-8 Neural Network Core
+  tops: 26  # Tera Operations Per Second
+  precision: "int8"  # Hailo uses 8-bit quantization
+  
+  # Model constraints
+  max_model_size_mb: 50  # Practical limit for Hailo-8
+  supported_input_sizes:
+    - 320
+    - 416
+    - 512
+    - 640  # Recommended for balance
+    - 768
+  
+  # Performance targets
+  target_fps: 20  # Minimum acceptable FPS for behavior tree reactivity
+  max_latency_ms: 50  # Maximum acceptable latency per frame
+
+export:
+  # Export settings for ONNX → HEF compilation
+  format: "onnx"
+  opset: 11  # Hailo SDK supports opset 11-13
+  
+  onnx_export:
+    simplify: true
+    dynamic: false
+    nms: false  # Hailo uses custom post-processing
+    
+  hailo_compilation:
+    sdk_version: "2025-10"  # Hailo Dataflow Compiler version
+    optimization_level: 2  # 0=debug, 1=balanced, 2=performance
+    batch_size: 1
+    compression: true  # Reduce .hef file size
+    
+  input_preprocessing:
+    # These should match training normalization
+    mean: [0.0, 0.0, 0.0]
+    std: [255.0, 255.0, 255.0]
+    data_format: "NHWC"  # Hailo prefers NHWC
+
+deployment:
+  # Deployment paths on target device
+  host: "ros@sigynVision.local"
+  model_dir: "~/pi_can_detector_ws/src/pi_can_detector/"
+  
+  required_files:
+    - "model.hef"  # Compiled Hailo model
+    - "labels.txt"  # Class names
+    - "config.yaml"  # Runtime configuration
+  
+  runtime:
+    framework: "hailo_platform"  # HailoRT Python API
+    threads: 4  # CPU threads for post-processing
+    
+performance_notes: |
+  YOLOv8n @ 640x640:
+    - Expected FPS: 25-30 (meets target)
+    - Latency: ~35ms per frame
+    - Power: ~5W (Hailo-8 + Pi 5 inference)
+  
+  YOLOv8s @ 640x640:
+    - Expected FPS: 15-20 (marginal)
+    - Latency: ~50-65ms per frame
+    - Power: ~6W
+  
+  Recommendations:
+    - Stick with YOLOv8n for real-time reactivity
+    - Use 640x640 input (sweet spot for Hailo-8)
+    - Batch size must be 1 (edge device)
+
+known_issues:
+  - "Hailo SDK sometimes fails to compile complex models (>10M params)"
+  - "Quantization can reduce accuracy by 1-3% (monitor mAP drop)"
+  - "Hailo-8 (not 8L) has better support in SDK 2025-10"
+
+troubleshooting:
+  model_wont_compile: |
+    - Try optimization_level: 1 instead of 2
+    - Simplify ONNX with onnx-simplifier
+    - Check if model uses unsupported operators
+  
+  low_fps: |
+    - Reduce input size (640 → 512)
+    - Use YOLOv8n instead of YOLOv8s
+    - Enable Hailo multi-stream mode
+  
+  accuracy_drop: |
+    - Use Post-Training Quantization (PTQ) calibration
+    - Provide representative calibration dataset
+    - Consider QAT (Quantization-Aware Training)

@@ -1,0 +1,154 @@
+# Device configuration for NVIDIA Jetson Orin Nano
+#
+# The Jetson Orin Nano is a powerful edge AI computer with
+# significantly more compute than Pi 5 or OAK-D. It will likely
+# replace the Pi 5 + Hailo setup once integrated into the robot.
+
+device:
+  name: "NVIDIA Jetson Orin Nano"
+  identifier: "jetson_orin_nano"
+  architecture: "aarch64"
+  accelerator: "ampere_gpu"
+  
+specifications:
+  # Jetson Orin Nano specs
+  tops: 40  # 40 TOPS INT8 (more than Hailo-8's 26 TOPS)
+  gpu_tflops: 1.024  # FP16
+  precision: "fp16"  # Ampere supports FP16 and INT8
+  
+  memory:
+    ram_gb: 8  # 8GB unified memory (shared CPU/GPU)
+    max_model_size_mb: 200  # Much more headroom than Pi/OAK-D
+  
+  supported_input_sizes:
+    - 320
+    - 416
+    - 512
+    - 640  # Recommended
+    - 768
+    - 1024  # Possible but may impact FPS
+  
+  # Performance targets (should exceed Pi 5)
+  target_fps: 30  # Higher target due to better hardware
+  max_latency_ms: 35  # Better reactivity
+
+power:
+  # Power is a concern for battery-powered robot
+  modes:
+    maxn: "15W"  # Maximum performance mode
+    10w: "10W"   # Balanced mode (recommended)
+    5w: "5W"     # Power-saving mode
+  
+  recommended_mode: "10w"
+  notes: |
+    Your robot has a 1KW battery with ~3 hour runtime.
+    At 10W mode, Jetson adds ~5% to power budget (acceptable).
+    Monitor temperature - may need heatsink/fan in enclosure.
+
+export:
+  # Export settings for ONNX → TensorRT .engine
+  format: "onnx"
+  opset: 13  # TensorRT 8.x supports opset 13
+  
+  onnx_export:
+    simplify: true
+    dynamic: false
+    nms: true  # TensorRT can do NMS efficiently
+    
+  tensorrt_compilation:
+    precision: "fp16"  # fp16 for speed, int8 for max performance
+    workspace_mb: 4096  # TensorRT workspace size
+    dla_core: null  # null = GPU, 0/1 = DLA cores (lower power)
+    
+  input_preprocessing:
+    mean: [0.0, 0.0, 0.0]
+    std: [255.0, 255.0, 255.0]
+    data_format: "NCHW"  # NVIDIA uses NCHW
+
+deployment:
+  # Deployment paths on Jetson
+  # NOTE: Jetson not yet integrated into robot
+  host: "ros@jetson.local"  # TBD when integrated
+  model_dir: "~/jetson_detector_ws/src/jetson_detector/models/"
+  
+  required_files:
+    - "model.engine"  # Compiled TensorRT engine
+    - "labels.txt"    # Class names
+    - "config.yaml"   # Runtime configuration
+  
+  runtime:
+    framework: "tensorrt"
+    use_dla: false  # Use GPU for now (DLA is lower power but slower)
+    threads: 4
+
+performance_notes: |
+  YOLOv8n @ 640x640:
+    - Expected FPS: 60-80 (excellent)
+    - Latency: ~12-17ms per frame
+    - Power: ~8W in 10W mode
+  
+  YOLOv8s @ 640x640:
+    - Expected FPS: 40-50 (excellent)
+    - Latency: ~20-25ms per frame
+    - Power: ~10W in 10W mode
+  
+  YOLOv8m @ 640x640:
+    - Expected FPS: 25-35 (good)
+    - Latency: ~30-40ms per frame
+    - Power: ~12W (may need MAXN mode)
+  
+  Recommendations:
+    - YOLOv8s is safe bet (accuracy + speed)
+    - Can run larger models than Pi/OAK-D
+    - Use 640x640 or even 768x768 input
+    - FP16 precision is sufficient (INT8 marginal gains)
+
+integration_challenges:
+  size: |
+    Jetson Orin Nano module: 69.6mm × 45mm (fits in robot)
+    With carrier board: larger, may need custom carrier
+  
+  power: |
+    - Nominal 19V input (your robot uses 12V battery)
+    - Need DC-DC converter (12V → 19V)
+    - OR: Use 12V-compatible carrier board
+    - Verify can source 15W peak (1.25A @ 12V)
+  
+  software: |
+    - JetPack 6.x requires Ubuntu 22.04 (ROS 2 Humble/Jazzy)
+    - Heavy reliance on Docker recommended by NVIDIA
+    - L4T (Linux for Tegra) updates slow
+    - TensorRT API changes between JetPack versions
+
+advantages_over_pi5:
+  - "3x faster inference (40 vs 26 TOPS)"
+  - "Native TensorRT support (mature ecosystem)"
+  - "Can run larger models (YOLOv8m, segmentation)"
+  - "Better thermal management"
+  - "Unified memory simplifies development"
+
+timeline:
+  current: "Pi 5 + Hailo-8 (next 2-3 months)"
+  migration: "Evaluate Jetson integration (Q2 2026)"
+  future: "Jetson as primary vision computer (Q3 2026)"
+
+known_issues:
+  - "TensorRT engines are NOT portable across JetPack versions"
+  - "Must recompile .engine on target device (no cross-compile)"
+  - "Power delivery needs careful planning (12V → 19V conversion)"
+
+troubleshooting:
+  tensorrt_compilation_slow: |
+    - Compilation can take 5-20 minutes (normal)
+    - Use FP16 (faster than INT8 calibration)
+    - Compile on device (not cross-compile)
+  
+  thermal_throttling: |
+    - Add heatsink with fan
+    - Use 10W mode instead of MAXN
+    - Monitor temps: tegrastats
+  
+  low_fps: |
+    - Use DLA cores for lower power (but slower)
+    - Reduce input size
+    - Check if in low-power mode unintentionally

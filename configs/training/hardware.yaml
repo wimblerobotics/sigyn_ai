@@ -1,0 +1,81 @@
+# Hardware configuration reference
+#
+# This file documents hardware-specific settings for different training setups.
+# Copy relevant sections to your training config.
+
+# NVIDIA RTX 2060 (6GB VRAM) - Your current desktop
+rtx_2060:
+  batch_size: 4  # Safe for 640x640 YOLOv8n
+  workers: 0     # Use 0 to avoid shared memory issues
+  precision: "fp16"
+  enable_amp: true
+  notes: |
+    - Max batch size for YOLOv8n at 640x640: ~8
+    - Max batch size for YOLOv8s at 640x640: ~4
+    - Use workers=0 if you see "Shared memory" errors
+    - Consider upgrading to RTX 3060 12GB for larger models
+
+# NVIDIA RTX 3060 (12GB VRAM) - Recommended upgrade
+rtx_3060:
+  batch_size: 16  # Comfortable for 640x640 YOLOv8n
+  workers: 8
+  precision: "fp16"
+  enable_amp: true
+  notes: |
+    - Sweet spot GPU for robotics AI ($300 used)
+    - Handles YOLOv8m and segmentation models well
+    - 12GB VRAM is more than 3070/3080 (8GB)
+
+# NVIDIA RTX 4060 Ti (16GB VRAM) - Best new option
+rtx_4060_ti_16gb:
+  batch_size: 24
+  workers: 8
+  precision: "fp16"
+  enable_amp: true
+  notes: |
+    - Best value for new GPU purchase (~$500)
+    - 16GB handles all YOLOv8 variants + segmentation
+    - Lower power consumption than 30-series
+
+# CPU fallback (slow, for testing only)
+cpu_fallback:
+  batch_size: 2
+  workers: 0
+  precision: "fp32"  # CPU doesn't support fp16
+  enable_amp: false
+  notes: |
+    - Training will be 50-100x slower than GPU
+    - Use for: testing configs, small validation runs
+    - For serious training, use Google Colab (free GPU)
+
+# Google Colab (free tier)
+google_colab_free:
+  batch_size: 8  # Tesla T4 (15GB VRAM)
+  workers: 2
+  precision: "fp16"
+  enable_amp: true
+  notes: |
+    - Free GPU access (Tesla T4 or K80)
+    - 12-hour session limit
+    - Good for datasets < 500 images
+    - See docs/GETTING_STARTED_NO_GPU.md
+
+# Google Colab Pro (paid, $10/month)
+google_colab_pro:
+  batch_size: 16  # V100 (16GB VRAM) or A100 (40GB)
+  workers: 4
+  precision: "fp16"
+  enable_amp: true
+  notes: |
+    - Access to V100/A100 GPUs
+    - 24-hour session limit
+    - Priority access during high demand
+    - Best option if no local GPU
+
+# Training time estimates (100 epochs, 100 images, 640x640, YOLOv8n):
+# RTX 2060: ~3-5 minutes
+# RTX 3060: ~2-3 minutes  
+# RTX 4060 Ti: ~1.5-2 minutes
+# CPU: ~2-4 hours
+# Colab T4: ~3-4 minutes
+# Colab V100: ~1-2 minutes

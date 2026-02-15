@@ -1,0 +1,118 @@
+# Device configuration for Luxonis OAK-D Lite camera
+#
+# The OAK-D Lite has an onboard Myriad X VPU for neural inference.
+# It's mounted on top of Sigyn for navigation and scene understanding.
+
+device:
+  name: "Luxonis OAK-D Lite"
+  identifier: "oakd_lite"
+  architecture: "myriad_x"
+  accelerator: "myriad_x_vpu"
+  
+specifications:
+  # Intel Myriad X VPU
+  tops: 4  # Tera Operations Per Second (much less than Hailo)
+  precision: "fp16"  # Myriad X uses 16-bit floating point
+  
+  # Model constraints (tight due to limited compute)
+  max_model_size_mb: 30  # Myriad X has limited memory
+  supported_input_sizes:
+    - 256
+    - 320
+    - 416  # Recommended for OAK-D
+    - 512
+  
+  # Performance targets (more constrained than Hailo)
+  target_fps: 15  # Acceptable for top-mounted nav camera
+  max_latency_ms: 70  # Less critical for navigation
+
+export:
+  # Export settings for ONNX → .blob compilation
+  format: "onnx"
+  opset: 12  # DepthAI / Blobconverter supports opset 12
+  
+  onnx_export:
+    simplify: true
+    dynamic: false
+    nms: false  # OAK-D does post-processing on host
+    
+  blob_compilation:
+    tool: "blobconverter"  # Luxonis online compiler
+    # OR: "compile_tool" for local OpenVINO compilation
+    
+    shaves: 6  # Myriad X SHAVE cores (6 for OAK-D Lite)
+    cmx_slices: 6
+    optimization_level: "performance"  # or "balanced", "power"
+    
+  input_preprocessing:
+    # Match training normalization
+    mean: [0.0, 0.0, 0.0]
+    std: [255.0, 255.0, 255.0]
+    data_format: "NCHW"  # Myriad X uses NCHW
+
+deployment:
+  # Deployment paths (OAK-D runs on main robot computer)
+  host: "ros@sigyn.local"
+  model_dir: "~/sigyn_ws/src/Sigyn/yolo_oakd_test/resources/models/"
+  
+  required_files:
+    - "model.blob"  # Compiled Myriad X model
+    - "labels.txt"  # Class names
+    - "config.json"  # DepthAI configuration
+  
+  runtime:
+    framework: "depthai"  # Luxonis DepthAI SDK
+    pipeline: "yolo_spatial"  # Use depth for 3D localization
+    
+performance_notes: |
+  YOLOv8n @ 416x416:
+    - Expected FPS: 15-20 (meets target)
+    - Latency: ~50-70ms per frame
+    - Power: ~2.5W (entire OAK-D camera)
+  
+  YOLOv8n @ 512x512:
+    - Expected FPS: 10-12 (too slow)
+    - Latency: ~80-100ms per frame
+  
+  YOLOv5n @ 416x416:
+    - Expected FPS: 18-25 (legacy, but faster)
+    - May be better for OAK-D due to architecture
+  
+  Recommendations:
+    - Use 416x416 input (Myriad X sweet spot)
+    - Consider YOLOv5n if YOLOv8n is too slow
+    - Use spatial mode to get 3D bounding boxes
+    - Lower FPS acceptable since top-mounted (not gripper)
+
+integration_notes: |
+  The OAK-D is mounted on top of Sigyn and used for:
+  - Navigation obstacle detection
+  - Scene understanding (floors, surfaces)
+  - AprilTag detection for docking
+  
+  It's less time-critical than the gripper camera because:
+  - Robot moves slower during navigation
+  - Behavior trees can plan over longer horizons
+  - 15 FPS is sufficient for Nav2 obstacle avoidance
+
+known_issues:
+  - "Blobconverter online service can be slow (5-10 min)"
+  - "Local OpenVINO compilation is complex to set up"
+  - "fp16 quantization more stable than int8 on Myriad X"
+  - "Some YOLO operations not supported (need ONNX simplifier)"
+
+troubleshooting:
+  blob_compilation_fails: |
+    - Use onnx-simplifier before uploading to blobconverter
+    - Try older YOLO versions (YOLOv5 more compatible)
+    - Check for unsupported ops in ONNX graph
+  
+  low_fps: |
+    - Reduce input size (416 → 320)
+    - Use YOLOv5n instead of YOLOv8n
+    - Reduce SHAVE cores if thermal throttling
+  
+  accuracy_issues: |
+    - Train at target resolution (416x416)
+    - Use same preprocessing in training/inference
+    - Calibrate OAK-D camera intrinsics
