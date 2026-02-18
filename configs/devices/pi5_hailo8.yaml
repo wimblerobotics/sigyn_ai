@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Michael Wimble <mike@wimblerobotics.com>
+# SPDX-License-Identifier: Apache-2.0
 # Device configuration for Raspberry Pi 5 + Hailo-8 AI HAT
 #
 # This configuration defines the constraints and requirements
@@ -52,7 +54,7 @@ export:
 deployment:
   # Deployment paths on target device
   host: "ros@sigynVision.local"
-  model_dir: "~/pi_can_detector_ws/src/pi_can_detector/"
+  model_dir: "~/sigyn_vision_ws/src/pi_can_detector/"
   
   required_files:
     - "model.hef"  # Compiled Hailo model

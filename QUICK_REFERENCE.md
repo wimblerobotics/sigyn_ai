@@ -193,7 +193,7 @@ ssh ros@sigyn.local 'echo success'
 **Deployment test fails:**
 ```bash
 # Check files on target
-ssh ros@sigyn.local 'ls -la ~/pi_can_detector_ws/src/pi_can_detector/'
+ssh ros@sigyn.local 'ls -la ~/sigyn_vision_ws/src/pi_can_detector/'
 
 # Check target has required libraries
 ssh ros@sigyn.local 'python3 -c "import hailo_platform"'

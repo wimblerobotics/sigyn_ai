@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2026 Michael Wimble <mike@wimblerobotics.com>
+# SPDX-License-Identifier: Apache-2.0
 # OAK-D Model + Node Deployment Script for Sigyn Robot
 # Usage: ./scripts/deploy_oakd.sh -m <model_name>
 # Example: ./scripts/deploy_oakd.sh -m oakd_v4

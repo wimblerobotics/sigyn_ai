@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Michael Wimble <mike@wimblerobotics.com>
+# SPDX-License-Identifier: Apache-2.0
 # Device configuration for NVIDIA Jetson Orin Nano
 #
 # The Jetson Orin Nano is a powerful edge AI computer with

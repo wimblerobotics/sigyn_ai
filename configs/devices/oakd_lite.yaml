@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Michael Wimble <mike@wimblerobotics.com>
+# SPDX-License-Identifier: Apache-2.0
 # Device configuration for Luxonis OAK-D Lite camera
 #
 # The OAK-D Lite has an onboard Myriad X VPU for neural inference.
