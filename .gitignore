@@ -66,7 +66,10 @@ logs/
 runs/
 wandb/
 
-# Compiled models - tracked by Git LFS (*.hef, *.har, *.blob, *.onnx, *.engine, *.pt, *.pth)
+# Hailo compilation intermediates (not needed for deployment; regenerate from ONNX if needed)
+*.har
+
+# Other model binaries tracked by Git LFS via .gitattributes (*.hef, *.blob, *.onnx, *.engine, *.pt, *.pth)
 # Do NOT add those extensions here; .gitattributes handles them via LFS
 
 # Temporary files
