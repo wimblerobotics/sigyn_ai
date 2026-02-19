@@ -15,13 +15,13 @@ NC='\033[0m' # No Color
 
 # Default values
 MODEL_NAME=""
-REMOTE_HOST="sigyn7900a"
+REMOTE_HOST="sigynVision"
 REMOTE_USER="ros"
-REMOTE_PATH="~/sigyn_ws/src/Sigyn/yolo_oakd_test/models"
+REMOTE_PATH="~/sigyn_ws/install/oakd_detector/share/oakd_detector/resources"
 DEVICE="oakd_lite"
 DEPLOY_NODE=1
 LOCAL_NODE_SOURCE="scripts/oakd_can_detector_ultralytics.py"
-REMOTE_NODE_PATH="~/sigyn_ws/src/Sigyn/yolo_oakd_test/yolo_oakd_test/oakd_can_detector.py"
+REMOTE_NODE_PATH="~/sigyn_ws/src/Sigyn/oakd_detector/oakd_detector/oakd_detector_node.py"
 
 # Parse command line arguments
 while getopts "m:h:u:p:d:s" opt; do
