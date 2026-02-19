@@ -66,11 +66,8 @@ logs/
 runs/
 wandb/
 
-# Compiled models
-*.hef
-*.blob
-*.engine
-*.onnx
+# Compiled models - tracked by Git LFS (*.hef, *.har, *.blob, *.onnx, *.engine, *.pt, *.pth)
+# Do NOT add those extensions here; .gitattributes handles them via LFS
 
 # Temporary files
 *.tmp
@@ -96,8 +93,7 @@ id_rsa*
 # RoboFlow API keys (don't commit!)
 roboflow_api_key.txt
 
-# Model artifacts
-*.pt
+# Model artifacts - tracked by Git LFS via .gitattributes
 
 # Testing
 .pytest_cache/
