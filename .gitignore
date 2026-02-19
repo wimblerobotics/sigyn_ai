@@ -3,7 +3,7 @@ datasets/
 !datasets/README.md
 
 # Ignore trained models (large files)
-models/
+#models/
 !models/README.md
 
 # Local/vendor checkouts (development-only)
