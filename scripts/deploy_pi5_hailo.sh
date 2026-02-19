@@ -6,7 +6,7 @@
 # Example: ./scripts/deploy_pi5_hailo.sh -m fcc4_v4_640
 #
 # PREREQUISITE: The pi_can_detector repo must already be cloned at:
-#   ~/pi_can_detector_ws/src/pi_can_detector/
+#   ~/sigyn_vision_ws/src/pi_can_detector/
 # Run vcstool first, then run this script to deploy the model.
 # After this script succeeds, start the pi-can-detector service:
 #   sudo systemctl start pi-can-detector
@@ -23,7 +23,7 @@ NC='\033[0m' # No Color
 MODEL_NAME=""
 REMOTE_HOST="sigynVision"
 REMOTE_USER="ros"
-REMOTE_PATH="~/pi_can_detector_ws/src/pi_can_detector/models"
+REMOTE_PATH="~/sigyn_vision_ws/src/pi_can_detector/models"
 DEVICE="pi5_hailo8"
 
 # Parse command line arguments

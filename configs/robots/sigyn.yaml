@@ -49,7 +49,7 @@ hardware:
       
       deployment:
         host: "ros@sigynVision.local"
-        model_dir: "~/pi_can_detector_ws/src/pi_can_detector/"
+        model_dir: "~/sigyn_vision_ws/src/pi_can_detector/"
         node_package: "pi_can_detector"
 
 tasks:

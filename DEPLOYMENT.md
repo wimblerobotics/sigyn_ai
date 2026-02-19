@@ -9,7 +9,7 @@ for the Sigyn robot's vision subsystem. It lives alongside ROS packages in the w
 ## Repository Layout on sigynVision (SV)
 
 ```
-~/pi_can_detector_ws/
+~/sigyn_vision_ws/
   src/
     sigyn_ai/          ← this repo (toolchain, no package.xml — colcon ignores it)
     pi_can_detector/   ← ROS 2 package (colcon builds this)
@@ -24,31 +24,31 @@ directories that contain a `package.xml`. `sigyn_ai` is silently skipped.
 
 ```bash
 # Step 1: Clone all repos (done by setup_robot.py in Sigyn2)
-cd ~/pi_can_detector_ws/src
-vcs import < ~/pi_can_detector_ws/sigyn_vision.repos
+cd ~/sigyn_vision_ws/src
+vcs import < ~/sigyn_vision_ws/sigyn_vision.repos
 
 # Step 2: Build ROS packages
-cd ~/pi_can_detector_ws
+cd ~/sigyn_vision_ws
 colcon build
 
 # Step 3: Deploy the AI model (required before starting pi-can-detector service)
-cd ~/pi_can_detector_ws/src/sigyn_ai
+cd ~/sigyn_vision_ws/src/sigyn_ai
 ./scripts/deploy_pi5_hailo.sh -m <model_name>
 
 # Step 4: Install and start services (done by setup_robot.py in Sigyn2)
-~/pi_can_detector_ws/src/pi_can_detector/scripts/setup_service.sh
-~/pi_can_detector_ws/src/pi_gripper/scripts/setup_service.sh
+~/sigyn_vision_ws/src/pi_can_detector/scripts/setup_service.sh
+~/sigyn_vision_ws/src/pi_gripper/scripts/setup_service.sh
 ```
 
 ### Step 3 in Detail
 
 `deploy_pi5_hailo.sh` copies the compiled Hailo `.hef` (and optionally `.onnx` and
-`labels.txt`) to `~/pi_can_detector_ws/src/pi_can_detector/models/` on the target machine
+`labels.txt`) to `~/sigyn_vision_ws/src/pi_can_detector/models/` on the target machine
 and creates a stable symlink `can_detector.hef` pointing to the versioned file.
 
 **Prerequisites for Step 3:**
 
-- `pi_can_detector` must already be cloned at `~/pi_can_detector_ws/src/pi_can_detector/`
+- `pi_can_detector` must already be cloned at `~/sigyn_vision_ws/src/pi_can_detector/`
   (Step 1 handles this via `vcs import`).
 - SSH key-based access to `ros@sigynVision` must be configured on the machine running
   this script.
@@ -79,7 +79,7 @@ automatically by `deploy_pi5_hailo.sh`:
 
 ```bash
 ssh ros@sigynVision
-cd ~/pi_can_detector_ws/src/pi_can_detector/models
+cd ~/sigyn_vision_ws/src/pi_can_detector/models
 ls -lh                                     # find the .backup.<timestamp> file
 ln -sf <backup_filename>.hef can_detector.hef
 sudo systemctl restart pi-can-detector
