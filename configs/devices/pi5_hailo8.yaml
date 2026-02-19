@@ -54,7 +54,7 @@ export:
 deployment:
   # Deployment paths on target device
   host: "ros@sigynVision.local"
-  model_dir: "~/sigyn_vision_ws/src/pi_can_detector/"
+  model_dir: "~/pi_can_detector_ws/src/pi_can_detector/"
   
   required_files:
     - "model.hef"  # Compiled Hailo model
