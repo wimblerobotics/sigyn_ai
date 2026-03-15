@@ -17,6 +17,14 @@ reproducibility, documentation, and budget-friendly hardware options.
 
 ## 🚀 Quick Start
 
+### If You Only Care About OAK-D
+
+Read these in order:
+
+1. `README.md` for the high-level scripted flow
+2. `docs/OAKD_ULTRALYTICS_COMPLETE.md` for the important Ultralytics + OAK-D compatibility fix and the reference node
+3. `docs/GETTING_STARTED.md` if you need the full training/export/deploy walkthrough
+
 ### 1. Installation
 
 ```bash
