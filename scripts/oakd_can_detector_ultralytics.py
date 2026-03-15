@@ -1,4 +1,4 @@
-#!/home/ros/sigyn-venv/bin/python3
+#!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Michael Wimble <mike@wimblerobotics.com>
 # SPDX-License-Identifier: Apache-2.0
 """
