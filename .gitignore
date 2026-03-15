@@ -72,6 +72,9 @@ wandb/
 # Other model binaries tracked by Git LFS via .gitattributes (*.hef, *.blob, *.onnx, *.engine, *.pt, *.pth)
 # Do NOT add those extensions here; .gitattributes handles them via LFS
 
+# Pretrained vendor weights downloaded at repo root during local training
+/yolo*.pt
+
 # Temporary files
 *.tmp
 tmp/

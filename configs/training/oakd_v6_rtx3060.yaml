@@ -1,0 +1,23 @@
+# Auto-generated configuration for OAK-D Lite
+# Generated: Fri Feb 20 02:24:35 PM PST 2026
+# Dataset version: 6
+# Using YOLOv5 for OAK-D blob compatibility
+
+model:
+  size: "5n"  # YOLOv5 nano for OAK-D
+
+dataset:
+  path: "datasets/roboflow_exports/fcc4.v6-yolov8"
+
+compute:
+  device: "auto"  # Auto-detect GPU/CPU
+  batch_size: "auto"  # Auto-detect based on GPU
+  workers: "auto"
+
+training:
+  epochs: 100
+  imgsz: 416  # OAK-D requires 416x416
+
+output:
+  project_dir: "models/checkpoints"
+  run_name: "oakd_v6_rtx3060"
