@@ -15,7 +15,7 @@ This guide walks through the complete workflow from capturing images to deployin
 
 ```bash
 cd ~
-git clone https://github.com/yourusername/sigyn_ai.git
+git clone https://github.com/wimblerobotics/sigyn_ai.git
 cd sigyn_ai
 ```
 

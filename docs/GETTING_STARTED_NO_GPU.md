@@ -41,7 +41,7 @@ You should see Tesla T4 or similar GPU.
 
 ```python
 # Clone repository
-!git clone https://github.com/yourusername/sigyn_ai.git
+!git clone https://github.com/wimblerobotics/sigyn_ai.git
 %cd sigyn_ai
 
 # Install dependencies (most already installed in Colab)
@@ -209,7 +209,7 @@ Create new notebook and run these cells:
 **Cell 1:**
 ```python
 # Setup
-!git clone https://github.com/yourusername/sigyn_ai.git
+!git clone https://github.com/wimblerobotics/sigyn_ai.git
 %cd sigyn_ai
 !pip install ultralytics==8.4.14 roboflow onnx-simplifier -q
 ```

@@ -1,16 +1,38 @@
 # Ultralytics YOLOv5 on OAK-D: Complete Solution
 
+## 🚨 Getting Slow FPS? Read This First
+
+If your OAK-D object detection pipeline is working but running too slowly (< 15 FPS),
+the most common root cause is an **output format mismatch** between Ultralytics-exported
+models and the standard `YoloSpatialDetectionNetwork` DepthAI node.
+
+**Symptom**: You see this error, or detection just doesn't work at acceptable speed:
+```
+Mask is not defined for output layer with width '3549'
+```
+
+**Fix**: Replace `dai.node.YoloSpatialDetectionNetwork` with `dai.node.NeuralNetwork`
+plus host-side post-processing. With this approach you can achieve **25–30 FPS** on
+OAK-D Lite at 416×416. The reference implementation is in
+[`scripts/oakd_can_detector_ultralytics.py`](../scripts/oakd_can_detector_ultralytics.py).
+
+---
+
 ## Problem Summary
 
-**Issue**: Ultralytics YOLOv5 exports single concatenated output `[1, 5, 3549]`, but OAK-D's `YoloSpatialDetectionNetwork` expects 3 separate outputs (side52, side26, side13).
+**Issue**: Ultralytics YOLOv5 exports a single concatenated output `[1, 5, 3549]`, but
+OAK-D's `YoloSpatialDetectionNetwork` expects 3 separate outputs (side52, side26,
+side13).
 
 **Error**: `Mask is not defined for output layer with width '3549'`
 
-**Root Cause**: Architecture incompatibility between Ultralytics export format and DepthAI's YOLO node.
+**Root Cause**: Architecture incompatibility between Ultralytics export format and
+DepthAI's YOLO node.
 
 ## Solution Architecture
 
-Replace `dai.node.YoloSpatialDetectionNetwork` with `dai.node.NeuralNetwork` + custom post-processing.
+Replace `dai.node.YoloSpatialDetectionNetwork` with `dai.node.NeuralNetwork` + custom
+post-processing.
 
 ### Key Changes
 
@@ -19,31 +41,29 @@ Replace `dai.node.YoloSpatialDetectionNetwork` with `dai.node.NeuralNetwork` + c
 3. **NMS**: Implement non-maximum suppression
 4. **Spatial Coords**: Compute from depth map using camera intrinsics
 
-## Files Modified
+## Files
 
-### 1. Training/Export (Already Working ✅)
-- `/home/ros/sigyn_ai/src/export/export.py` - Uses ModelConverter
-- `/home/ros/sigyn_ai/scripts/train_oakd.sh` - Already has --compile flag
+### 1. Training/Export (Working ✅)
+- `src/export/export.py` — Uses ModelConverter for `.blob` compilation
+- `scripts/train_oakd.sh` — End-to-end train + export pipeline with `--compile`
 - Blob compilation: **WORKING** (ModelConverter + OpenVINO 2022.3.0)
 
-### 2. ROS Node (New Implementation)
-- **Original**: `oakd_can_detector.py` (493 lines, uses YoloSpatialDetectionNetwork)
-- **Updated**: `oakd_can_detector_ultralytics.py` (uses generic NeuralNetwork)
+### 2. ROS Node (Reference Implementation)
+- **Original (broken with Ultralytics)**: Uses `YoloSpatialDetectionNetwork`
+- **Solution**: `scripts/oakd_can_detector_ultralytics.py` — uses generic `NeuralNetwork`
 
-**Location**: 
-```bash
-# Training workspace
-/home/ros/sigyn_ai/scripts/oakd_can_detector_ultralytics.py
-
-# Deployment target
-sigyn7900a:~/sigyn_ws/src/Sigyn/yolo_oakd_test/yolo_oakd_test/oakd_can_detector.py
+**Reference node location in this repo**:
 ```
+scripts/oakd_can_detector_ultralytics.py
+```
+
+Adapt it to your own ROS package as needed (see Deployment section below).
 
 ## Deployment
 
-### Option 1: Automated Script (Recommended)
+### Option 1: Automated Script (Sigyn robot — adapt for your setup)
 ```bash
-cd /home/ros/sigyn_ai
+cd ~/sigyn_ai
 ./scripts/deploy_oakd.sh -m <run_name>
 ```
 
@@ -52,31 +72,31 @@ This will:
 2. Deploy `scripts/oakd_can_detector_ultralytics.py` to the robot node path
 3. Keep the model/node deployment in a single reproducible command
 
-### Option 2: Manual Deployment
+### Option 2: Manual Deployment (adapt paths for your robot)
 ```bash
-# Backup original
-ssh ros@sigyn7900a "cp ~/sigyn_ws/src/Sigyn/yolo_oakd_test/yolo_oakd_test/oakd_can_detector.py ~/oakd_can_detector_backup.py"
+# Backup original node
+ssh <user>@<robot_host> "cp <your_ros_package>/<detector_node>.py <your_ros_package>/<detector_node>.py.bak"
 
-# Deploy new version
-scp /home/ros/sigyn_ai/scripts/oakd_can_detector_ultralytics.py \
-    ros@sigyn7900a:~/sigyn_ws/src/Sigyn/yolo_oakd_test/yolo_oakd_test/oakd_can_detector.py
+# Deploy updated node
+scp scripts/oakd_can_detector_ultralytics.py \
+    <user>@<robot_host>:<your_ros_package>/<detector_node>.py
 
-# Rebuild
-ssh ros@sigyn7900a "cd ~/sigyn_ws && colcon build --packages-select yolo_oakd_test --symlink-install"
+# Rebuild ROS package
+ssh <user>@<robot_host> "cd <your_ros_ws> && colcon build --packages-select <your_package> --symlink-install"
 ```
 
 ## Testing
 
 ### 1. Run the Node
 ```bash
-ssh ros@sigyn7900a
-source ~/sigyn_ws/install/setup.bash
-ros2 run yolo_oakd_test oakd_can_detector
+ssh <user>@<robot_host>
+source <your_ros_ws>/install/setup.bash
+ros2 run <your_package> oakd_can_detector
 ```
 
 ### 2. Expected Output
 ```
-[oakd_can_detector] [[INIT]] Using blob: /home/ros/sigyn_ws/src/Sigyn/yolo_oakd_test/models/can_detector.blob
+[oakd_can_detector] [[INIT]] Using blob: <path_to>/can_detector.blob
 [oakd_can_detector] [[PIPELINE]] Generic Neural Network configured for Ultralytics YOLOv5 (confidence_threshold=0.4, iou_threshold=0.5)
 [oakd_can_detector] [[DEVICE]] Connected to OAK-D: ...
 [oakd_can_detector] [[LOOP]] Entering main loop.
@@ -138,16 +158,15 @@ The training pipeline is **unchanged** and **fully automated**:
 
 ```bash
 # Train for OAK-D (automatically compiles blob)
-cd /home/ros/sigyn_ai
-./scripts/train_oakd.sh
+cd ~/sigyn_ai
+./scripts/train_oakd.sh -v <roboflow_version> -n <run_name>
 
 # Output:
-# - models/checkpoints/fcc4_v5_416/best.pt
-# - models/exported/fcc4_v5_416/oakd_lite/fcc4_v5_416.blob (4.9 MB)
+# - models/checkpoints/<run_name>/best.pt
+# - models/exported/<run_name>/oakd_lite/<run_name>.blob
 
 # Deploy
-scp models/exported/fcc4_v5_416/oakd_lite/fcc4_v5_416.blob \
-    ros@sigyn7900a:~/sigyn_ws/src/Sigyn/yolo_oakd_test/models/
+./scripts/deploy_oakd.sh -m <run_name>
 ```
 
 ## Advantages of This Approach
@@ -222,4 +241,4 @@ self.confidence_threshold = 0.3  # Default: 0.4
 
 **Status**: ✅ Solution ready for deployment
 **Last Updated**: 2025-02-14
-**Tested On**: OAK-D Lite (sigyn7900a), ROS 2 Jazzy, Ultralytics 8.4.14
+**Tested On**: OAK-D Lite, ROS 2 Jazzy, Ultralytics 8.4.14
