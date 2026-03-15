@@ -11,6 +11,7 @@
 >
 > ```bash
 > ./scripts/train_pi5_hailo.sh -v <roboflow_version> -n <run_name>
+> ./scripts/deploy_pi5_hailo.sh -m <run_name> -h <robot_host> -u <robot_user> -p <remote_models_dir>
 > ```
 >
 > On robot:
@@ -20,6 +21,25 @@
 > ```
 
 ## 🚀 Common Commands
+
+### Fastest Public OAK-D Path
+
+```bash
+# 1. Train + compile blob locally
+./scripts/train_oakd.sh -v <roboflow_version> -n <run_name>
+
+# 2. Deploy to your own ROS package paths
+./scripts/deploy_oakd.sh -m <run_name> \
+    -h <robot_host> \
+    -u <robot_user> \
+    -p <remote_models_dir> \
+    -r <remote_detector_node.py>
+
+# 3. Launch on the robot
+ros2 launch <your_package> <your_launch_file>
+```
+
+If OAK-D runs but is slow, start with [docs/OAKD_ULTRALYTICS_COMPLETE.md](docs/OAKD_ULTRALYTICS_COMPLETE.md).
 
 ### Setup
 
@@ -204,7 +224,7 @@ ssh ros@sigyn.local 'python3 -c "import hailo_platform"'
 | Device | Model | Input Size | FPS | Latency |
 |--------|-------|------------|-----|---------|
 | Pi 5 + Hailo-8 | YOLOv8n | 640x640 | 25-30 | ~35ms |
-| OAK-D Lite | YOLOv8n | 416x416 | 15-20 | ~60ms |
+| OAK-D Lite | YOLOv5n/Ultralytics export with `NeuralNetwork` node | 416x416 | 25-30 | ~40-50ms |
 | Jetson Orin Nano | YOLOv8n | 640x640 | 60-80 | ~15ms |
 
 ## 🌐 Useful Links
@@ -273,7 +293,7 @@ python src/deployment/deploy.py \
 ./scripts/train_oakd.sh -v <roboflow_version> -n <run_name>
 
 # Deploy blob + node
-./scripts/deploy_oakd.sh -m <run_name>
+./scripts/deploy_oakd.sh -m <run_name> -h <robot_host> -u <robot_user> -p <remote_models_dir> -r <remote_detector_node.py>
 ```
 
 ### Key Features

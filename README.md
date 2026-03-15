@@ -37,8 +37,15 @@ export ROBOFLOW_API_KEY='your_key_here'
 # Train + export
 ./scripts/train_oakd.sh -v <roboflow_version> -n <run_name>
 
-# Deploy blob + OAK-D node script
+# Deploy blob + OAK-D node script to the built-in Sigyn paths
 ./scripts/deploy_oakd.sh -m <run_name>
+
+# Or deploy to your own ROS package paths
+./scripts/deploy_oakd.sh -m <run_name> \
+  -h <robot_host> \
+  -u <robot_user> \
+  -p <remote_models_dir> \
+  -r <remote_detector_node.py>
 ```
 
 Then on robot:
@@ -76,6 +83,9 @@ python src/export/export.py \
 
 # Deploy to robot
 python src/deployment/deploy.py --model <run_name> --target sigyn --camera gripper_cam
+
+# Or use the Pi 5 helper directly with your own remote model path
+./scripts/deploy_pi5_hailo.sh -m <run_name> -h <robot_host> -u <robot_user> -p <remote_models_dir>
 ```
 
 ## 📁 Repository Layout

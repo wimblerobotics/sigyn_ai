@@ -215,6 +215,19 @@ docker images | grep -i hailo
 
 **For OAK-D Lite:**
 
+Recommended public path:
+
+```bash
+./scripts/train_oakd.sh -v <roboflow_version> -n <run_name>
+./scripts/deploy_oakd.sh -m <run_name> \
+  -h <robot_host> \
+  -u <robot_user> \
+  -p <remote_models_dir> \
+  -r <remote_detector_node.py>
+```
+
+Manual export path:
+
 ```bash
 python src/export/export.py \
   --model runs/detect/models/checkpoints/my_detector_v1/weights/best.pt \

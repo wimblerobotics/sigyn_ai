@@ -1,7 +1,7 @@
 #!/bin/bash
 # SPDX-FileCopyrightText: 2026 Michael Wimble <mike@wimblerobotics.com>
 # SPDX-License-Identifier: Apache-2.0
-# OAK-D Model + Node Deployment Script for Sigyn Robot
+# OAK-D Model + Node Deployment Script
 # Usage: ./scripts/deploy_oakd.sh -m <model_name>
 # Example: ./scripts/deploy_oakd.sh -m oakd_v4
 
@@ -23,25 +23,43 @@ DEPLOY_NODE=1
 LOCAL_NODE_SOURCE="scripts/oakd_can_detector_ultralytics.py"
 REMOTE_NODE_PATH="~/sigyn_ws/src/Sigyn/yolo_oakd_test/yolo_oakd_test/oakd_can_detector.py"
 
+usage() {
+        echo "Usage: $0 -m <model_name> [-h remote_host] [-u remote_user] [-p remote_model_path] [-r remote_node_path] [-d device] [-s]"
+        echo ""
+        echo "Options:"
+        echo "  -m MODEL_NAME       Export/run name under models/exported/<model_name>/<device>"
+        echo "  -h REMOTE_HOST      Remote host or IP (default: ${REMOTE_HOST})"
+        echo "  -u REMOTE_USER      Remote SSH user (default: ${REMOTE_USER})"
+        echo "  -p REMOTE_PATH      Remote directory for model files (default: ${REMOTE_PATH})"
+        echo "  -r REMOTE_NODE_PATH Remote detector node path to overwrite (default: ${REMOTE_NODE_PATH})"
+        echo "  -d DEVICE           Export device directory (default: ${DEVICE})"
+        echo "  -s                  Skip deploying node script; deploy blob/labels only"
+        echo ""
+        echo "Examples:"
+        echo "  $0 -m oakd_v6_rtx3060"
+        echo "  $0 -m oakd_v6_rtx3060 -h myrobot.local -u ros \\
+            -p ~/my_ros_ws/src/my_oakd_pkg/models \\
+            -r ~/my_ros_ws/src/my_oakd_pkg/my_oakd_pkg/oakd_can_detector.py"
+}
+
 # Parse command line arguments
-while getopts "m:h:u:p:d:s" opt; do
+while getopts "m:h:u:p:r:d:s" opt; do
   case $opt in
     m) MODEL_NAME="$OPTARG" ;;
     h) REMOTE_HOST="$OPTARG" ;;
     u) REMOTE_USER="$OPTARG" ;;
     p) REMOTE_PATH="$OPTARG" ;;
+        r) REMOTE_NODE_PATH="$OPTARG" ;;
     d) DEVICE="$OPTARG" ;;
         s) DEPLOY_NODE=0 ;;
-    \?) echo "Invalid option -$OPTARG" >&2; exit 1 ;;
+        \?) usage; exit 1 ;;
   esac
 done
 
 # Validate required arguments
 if [ -z "$MODEL_NAME" ]; then
     echo -e "${RED}Error: Model name is required${NC}"
-    echo "Usage: $0 -m <model_name> [-h remote_host] [-u remote_user] [-p remote_path] [-d device] [-s]"
-    echo "Example: $0 -m oakd_v4"
-    echo "  -s: Skip deploying node script (deploy blob/labels only)"
+    usage
     exit 1
 fi
 
@@ -51,6 +69,7 @@ echo "Device: $DEVICE"
 echo "Remote: $REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH"
 if [ "$DEPLOY_NODE" -eq 1 ]; then
     echo "Node source: $LOCAL_NODE_SOURCE"
+    echo "Node target: $REMOTE_NODE_PATH"
 fi
 echo ""
 
@@ -97,6 +116,11 @@ fi
 # Create remote directory if it doesn't exist
 echo -e "${GREEN}Ensuring remote directory exists...${NC}"
 ssh "${REMOTE_USER}@${REMOTE_HOST}" "mkdir -p ${REMOTE_PATH}"
+
+if [ "$DEPLOY_NODE" -eq 1 ]; then
+    echo -e "${GREEN}Ensuring remote node directory exists...${NC}"
+    ssh "${REMOTE_USER}@${REMOTE_HOST}" "mkdir -p $(dirname "${REMOTE_NODE_PATH}")"
+fi
 
 # Backup existing can_detector.blob if it exists
 echo -e "${GREEN}Backing up existing model (if any)...${NC}"

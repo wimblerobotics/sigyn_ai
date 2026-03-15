@@ -1,15 +1,12 @@
 #!/bin/bash
 # SPDX-FileCopyrightText: 2026 Michael Wimble <mike@wimblerobotics.com>
 # SPDX-License-Identifier: Apache-2.0
-# Pi 5 + Hailo-8 Model Deployment Script for Sigyn Vision
+# Pi 5 + Hailo-8 Model Deployment Script
 # Usage: ./scripts/deploy_pi5_hailo.sh -m <model_name>
 # Example: ./scripts/deploy_pi5_hailo.sh -m fcc4_v4_640
 #
-# PREREQUISITE: The pi_can_detector repo must already be cloned at:
-#   ~/sigyn_vision_ws/src/pi_can_detector/
-# Run vcstool first, then run this script to deploy the model.
-# After this script succeeds, start the pi-can-detector service:
-#   sudo systemctl start pi-can-detector
+# PREREQUISITE: Your target ROS workspace must already contain the detector package
+# and model directory referenced by REMOTE_PATH.
 
 set -e  # Exit on error
 
@@ -43,6 +40,7 @@ if [ -z "$MODEL_NAME" ]; then
     echo -e "${RED}Error: Model name is required${NC}"
     echo "Usage: $0 -m <model_name> [-h remote_host] [-u remote_user] [-p remote_path] [-d device]"
     echo "Example: $0 -m fcc4_v4_640"
+    echo "Example: $0 -m PiHat512b -h pi5.local -u ros -p ~/my_ws/src/pi_can_detector/models"
     exit 1
 fi
 
