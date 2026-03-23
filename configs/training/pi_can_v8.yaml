@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2026 Michael Wimble <mike@wimblerobotics.com>
+# SPDX-License-Identifier: Apache-2.0
+# Auto-generated configuration for Pi 5 + Hailo-8
+# Generated: Mon 23 Mar 2026
+# Dataset version: 8
+
+model:
+  size: "n"  # nano model for edge deployment
+
+dataset:
+  path: "datasets/roboflow_exports/FCC4.v8-yolov8"
+
+compute:
+  device: "auto"  # Auto-detect GPU/CPU
+  batch_size: "auto"  # Auto-detect based on GPU
+  workers: "auto"
+  enable_amp: true
+
+training:
+  epochs: 100
+  imgsz: 512  # Reliable default for Hailo compilation
+  optimizer: "auto"
+  patience: 50
+
+output:
+  project_dir: "models/checkpoints"
+  run_name: "pi_can_v8"
