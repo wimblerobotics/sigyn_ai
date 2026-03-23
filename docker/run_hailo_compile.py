@@ -105,6 +105,7 @@ def main():
         docker_cmd = [
             'docker', 'run',
             '--rm',
+            '--gpus', 'all',
             '-u', args.docker_user,
             '-v', f'{output_dir}:/workspace',
             args.docker_image,
@@ -121,6 +122,7 @@ def main():
         docker_cmd = [
             'docker', 'run',
             '--rm',
+            '--gpus', 'all',
             '-u', args.docker_user,
             '-v', f'{output_dir}:/workspace',
             args.docker_image,

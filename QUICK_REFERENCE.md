@@ -1,17 +1,19 @@
 # Quick Reference Guide
 
-> **Status (2026-02-14):** Use the OAK-D scripted flow below for current deployments.
->
-> ```bash
-> ./scripts/train_oakd.sh -v <roboflow_version> -n <run_name>
-> ./scripts/deploy_oakd.sh -m <run_name>
-> ```
+> **Status (2026-03-22):** Pi 5 + Hailo-8 is the active deployment path. Current production model: **PiHat512c** (FCC4 v7, 380 train images, mAP@50=0.995) deployed to sigynVision.
 >
 > Pi 5 + Hailo reliable path:
 >
 > ```bash
 > ./scripts/train_pi5_hailo.sh -v <roboflow_version> -n <run_name>
 > ./scripts/deploy_pi5_hailo.sh -m <run_name> -h <robot_host> -u <robot_user> -p <remote_models_dir>
+> ```
+>
+> OAK-D path (also supported):
+>
+> ```bash
+> ./scripts/train_oakd.sh -v <roboflow_version> -n <run_name>
+> ./scripts/deploy_oakd.sh -m <run_name>
 > ```
 >
 > On robot:

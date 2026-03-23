@@ -1,0 +1,25 @@
+# Auto-generated configuration for Pi 5 + Hailo-8
+# Generated: Sun Mar 22 07:53:25 PM PDT 2026
+# Dataset version: 7
+
+model:
+  size: "n"
+
+dataset:
+  path: "datasets/roboflow_exports/fcc4.v7-yolov8"
+
+compute:
+  device: "auto"
+  batch_size: "auto"
+  workers: "auto"
+  enable_amp: true
+
+training:
+  epochs: 100
+  imgsz: 512
+  optimizer: "auto"
+  patience: 50
+
+output:
+  project_dir: "models/checkpoints"
+  run_name: "PiHat512c"
