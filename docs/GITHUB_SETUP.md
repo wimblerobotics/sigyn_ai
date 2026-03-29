@@ -24,7 +24,7 @@ git commit -m "Initial commit: Sigyn AI training and deployment toolkit
 
 Complete vision AI workflow for household robotics:
 - Training pipeline with GPU auto-detection
-- Multi-device export (Pi5/Hailo, OAK-D, Jetson)  
+- Multi-device export (Pi5/Hailo, OAK-D)
 - Automated SSH deployment with rollback
 - RoboFlow integration for dataset management
 - Docker workflows for compilation
@@ -34,7 +34,7 @@ Complete vision AI workflow for household robotics:
 Supports:
 - YOLOv8 object detection
 - Hardware: RTX 2060/3060/4060 Ti, Google Colab
-- Edge devices: Raspberry Pi 5 + Hailo-8, OAK-D Lite, Jetson Orin Nano
+- Edge devices: Raspberry Pi 5 + Hailo-8, OAK-D Lite
 - Target FPS: 15-30 depending on device"
 ```
 
@@ -137,7 +137,6 @@ Add topics:
 - `ros2`
 - `edge-ai`
 - `raspberry-pi`
-- `jetson`
 - `household-robotics`
 
 ### 2. Enable Discussions
@@ -244,7 +243,7 @@ Complete vision AI training and deployment toolkit for robotics!
 ## Features
 
 ✅ Training pipeline with GPU auto-detection  
-✅ Multi-device export (Pi5/Hailo, OAK-D, Jetson)  
+✅ Multi-device export (Pi5/Hailo, OAK-D)
 ✅ Automated deployment with SSH and rollback  
 ✅ RoboFlow integration  
 ✅ Docker workflows  
@@ -257,7 +256,7 @@ See [GETTING_STARTED.md](docs/GETTING_STARTED.md)
 ## Supported Hardware
 
 **Training**: NVIDIA GPUs (RTX 2060+), Google Colab  
-**Inference**: Raspberry Pi 5 + Hailo-8, OAK-D Lite, Jetson Orin Nano
+**Inference**: Raspberry Pi 5 + Hailo-8, OAK-D Lite
 
 ## Installation
 
@@ -285,7 +284,7 @@ See [README.md](README.md) for full documentation.
 🤖 Just released Sigyn AI - an open-source toolkit for training and deploying YOLO models on robots!
 
 ✅ Works with budget hardware (RTX 2060, Colab)
-✅ Multi-device support (Pi5/Hailo, OAK-D, Jetson)
+✅ Multi-device support (Pi5/Hailo, OAK-D)
 ✅ Complete workflow: RoboFlow → Train → Deploy
 
 Apache 2.0 license

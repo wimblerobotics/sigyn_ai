@@ -18,8 +18,6 @@ This document provides quick context for AI assistants (like GitHub Copilot, Cla
   - Gripper-mounted camera (Pi 5 + Hailo-8) for manipulation
   - Top-mounted OAK-D Lite for navigation
 
-## 📐 Architecture Overview
-
 ```
 Workflow: Capture → RoboFlow → Train → Export → Deploy
           ↓          ↓          ↓       ↓        ↓
@@ -38,7 +36,7 @@ Workflow: Capture → RoboFlow → Train → Export → Deploy
 ### Configuration Philosophy
 
 - **Everything in YAML**: No command-line args to memorize
-- **Device-specific configs**: Each device (Pi5/Hailo, OAK-D, Jetson) has optimization params
+- **Device-specific configs**: Each device (Pi5/Hailo, OAK-D) has optimization params
 - **Robot configs**: Per-robot camera mappings and deployment targets
 - **Training configs**: Dataset path, model size, augmentation, compute settings
 
@@ -54,8 +52,7 @@ Workflow: Capture → RoboFlow → Train → Export → Deploy
 ```
 .pt → ONNX (common) → Device-specific:
                       ├─ Hailo-8: .hef (INT8, Hailo DFC)
-                      ├─ OAK-D: .blob (FP16, Myriad X)
-                      └─ Jetson: .engine (FP16, TensorRT)
+                      └─ OAK-D: .blob (FP16, Myriad X)
 ```
 
 ### Deployment
@@ -69,7 +66,6 @@ Workflow: Capture → RoboFlow → Train → Export → Deploy
 |--------|---------|-------------|--------|
 | Pi 5 + Hailo-8 | 20 | 50ms | Gripper reactivity (behavior tree tick rate) |
 | OAK-D Lite | 15 | 70ms | Navigation (slower movement, longer horizon) |
-| Jetson Orin Nano | 30 | 35ms | Future upgrade, more headroom |
 
 **Critical**: Latency matters more than FPS because behavior trees make decisions at each tick. A 100ms latency means robot is reacting to 100ms-old world state.
 
@@ -118,9 +114,9 @@ sigyn_ai/
 - **Flexibility**: Each user downloads their own RoboFlow datasets
 
 ### Why Multiple Device Exports?
-- **Different architectures**: Myriad X (OAK-D) ≠ Hailo-8 ≠ Ampere GPU (Jetson)
+- **Different architectures**: Myriad X (OAK-D) ≠ Hailo-8
 - **Input size optimization**: OAK-D prefers 416x416, Hailo-8 prefers 640x640
-- **Quantization**: Hailo INT8, OAK-D FP16, Jetson FP16/INT8
+- **Quantization**: Hailo INT8, OAK-D FP16
 
 ## 🔍 Common Tasks (For AI Assistants)
 
@@ -138,7 +134,7 @@ sigyn_ai/
 2. Device config exists in `configs/devices/`
 3. Export script will create ONNX, but device-specific compilation may need Docker
 
-**Note**: Hailo compilation requires Docker, OAK-D can use blobconverter, Jetson must compile on-device
+**Note**: Hailo compilation requires Docker; OAK-D can use blobconverter.
 
 ### User wants to deploy
 **Check**:

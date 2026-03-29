@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v detect-secrets-hook >/dev/null 2>&1; then
+  echo "detect-secrets-hook is not installed. Install dependencies first:" >&2
+  echo "  pip install -r requirements.txt" >&2
+  exit 1
+fi
+
+if [[ ! -f .secrets.baseline ]]; then
+  echo ".secrets.baseline is missing. Generate it with:" >&2
+  echo "  detect-secrets scan --all-files > .secrets.baseline" >&2
+  exit 1
+fi
+
+upstream=""
+if upstream=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null); then
+  mapfile -t changed_files < <(git diff --name-only --diff-filter=ACMRT "${upstream}..HEAD")
+else
+  mapfile -t changed_files < <(git ls-files)
+fi
+
+scan_files=()
+for file in "${changed_files[@]}"; do
+  if [[ -f "$file" ]]; then
+    scan_files+=("$file")
+  fi
+done
+
+if [[ ${#scan_files[@]} -eq 0 ]]; then
+  exit 0
+fi
+
+exclude_regex='(^\.venv/|^runs/|^models/|^datasets/|^depthai-ml-training/|\.ipynb$|\.pt$|\.onnx$|\.bin$|\.jpg$|\.jpeg$|\.png$|\.mp4$|\.avi$|\.mov$)'
+
+echo "Running pre-push secret scan (detect-secrets)..."
+detect-secrets-hook --baseline .secrets.baseline --exclude-files "${exclude_regex}" "${scan_files[@]}"
+echo "Secret scan passed."

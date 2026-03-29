@@ -1,4 +1,29 @@
-# Ultralytics YOLOv5 on OAK-D: Complete Solution
+# OAK-D: YOLOv5n Deployment with Ultralytics Exports
+
+## YOLO Model Version and ROS 2 Distro — Common Questions
+
+**Q: Does ROS 2 Jazzy (Ubuntu 24.04) limit which YOLO model version I can use?**
+
+No. ROS 2 Jazzy vs. Kilted has no impact on YOLO model support. The constraint
+is the OAK-D's **Intel Myriad X VPU** and the **Luxonis DepthAI blob compiler**,
+not the ROS 2 middleware layer. Any YOLO model that can be exported to ONNX and
+compiled to a Myriad X `.blob` can run on the OAK-D regardless of your ROS 2
+distribution.
+
+**Q: Why YOLOv5n specifically?**
+
+YOLOv5 nano compiles reliably to `.blob` with blobconverter and achieves 18–25 FPS
+at 416 × 416 on the Myriad X. YOLOv8n is supported by the same `NeuralNetwork`
+node approach (see below) but has been less consistently tested on the Myriad X
+and may produce different output tensor shapes requiring code adjustments.
+
+**Q: What does "yolo26" mean in the Sigyn launch file name?**
+
+The launch file `oakd_yolo26_detector.launch.py` (in the `wimblerobotics/Sigyn`
+robot repo) is a historical name. "26" refers to the **YOLOv5 26 × 26 feature
+map layer** — one of the three detection scales in the YOLOv5 architecture —
+**not** YOLO version 26. The launch file is a shim that delegates to the
+`sigyn_oakd_detection` ROS 2 package.
 
 ## 🚨 Getting Slow FPS? Read This First
 
@@ -20,14 +45,14 @@ OAK-D Lite at 416×416. The reference implementation is in
 
 ## Problem Summary
 
-**Issue**: Ultralytics YOLOv5 exports a single concatenated output `[1, 5, 3549]`, but
-OAK-D's `YoloSpatialDetectionNetwork` expects 3 separate outputs (side52, side26,
-side13).
+**Issue**: Ultralytics YOLOv5 exports a single concatenated output `[1, 5, 3549]`,
+but OAK-D's `YoloSpatialDetectionNetwork` expects 3 separate outputs (side52,
+side26, side13).
 
 **Error**: `Mask is not defined for output layer with width '3549'`
 
-**Root Cause**: Architecture incompatibility between Ultralytics export format and
-DepthAI's YOLO node.
+**Same issue applies to YOLOv8 exports** — the fix (generic `NeuralNetwork` node
+with host-side post-processing) works for any single-output Ultralytics export.
 
 ## Solution Architecture
 

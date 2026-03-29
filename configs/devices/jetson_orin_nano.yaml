@@ -1,9 +1,17 @@
 # SPDX-FileCopyrightText: 2026 Michael Wimble <mike@wimblerobotics.com>
 # SPDX-License-Identifier: Apache-2.0
+#
+# ============================================================
+# NOT YET TESTED — Jetson Orin Nano is not currently deployed
+# in the robot. This config is a placeholder for future use.
+# Do not rely on any paths or settings here until integration
+# has been completed and verified.
+# ============================================================
+#
 # Device configuration for NVIDIA Jetson Orin Nano
 #
 # The Jetson Orin Nano is a powerful edge AI computer with
-# significantly more compute than Pi 5 or OAK-D. It will likely
+# significantly more compute than Pi 5 or OAK-D. It may
 # replace the Pi 5 + Hailo setup once integrated into the robot.
 
 device:

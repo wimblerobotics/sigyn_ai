@@ -1,26 +1,28 @@
 # Quick Reference Guide
 
-> **Status (2026-03-22):** Pi 5 + Hailo-8 is the active deployment path. Current production model: **PiHat512c** (FCC4 v7, 380 train images, mAP@50=0.995) deployed to sigynVision.
+> **Tested devices**: Pi 5 + Hailo-8 AI HAT and OAK-D / OAK-D Lite.
 >
-> Pi 5 + Hailo reliable path:
+> Pi 5 + Hailo-8:
 >
 > ```bash
 > ./scripts/train_pi5_hailo.sh -v <roboflow_version> -n <run_name>
 > ./scripts/deploy_pi5_hailo.sh -m <run_name> -h <robot_host> -u <robot_user> -p <remote_models_dir>
 > ```
 >
-> OAK-D path (also supported):
+> OAK-D:
 >
 > ```bash
 > ./scripts/train_oakd.sh -v <roboflow_version> -n <run_name>
 > ./scripts/deploy_oakd.sh -m <run_name>
 > ```
 >
-> On robot:
+> On robot (launch file name is specific to `wimblerobotics/Sigyn`; adapt for your robot):
 >
 > ```bash
-> ros2 launch base oakd_yolo26_detector.launch.py
+> ros2 launch sigyn_bringup oakd_yolo26_detector.launch.py
 > ```
+>
+> The name `yolo26` is historical — it refers to YOLOv5's 26 × 26 feature map layer, **not** version 26.
 
 ## 🚀 Common Commands
 
@@ -95,10 +97,6 @@ python src/export/export.py \
     --device oakd_lite \
     --compile
 
-# Export for Jetson
-python src/export/export.py \
-    --model runs/detect/models/checkpoints/can_detector_pihat_v1/weights/best.pt \
-    --device jetson_orin_nano
 ```
 
 ### Compile for Hailo (Docker)
@@ -142,7 +140,7 @@ python src/deployment/deploy.py \
 
 ### Configs
 - Training: `configs/training/<name>.yaml`
-- Devices: `configs/devices/{pi5_hailo8,oakd_lite,jetson_orin_nano}.yaml`
+- Devices: `configs/devices/{pi5_hailo8,oakd_lite}.yaml`
 - Robots: `configs/robots/<robot_name>.yaml`
 
 ### Data
@@ -225,9 +223,8 @@ ssh ros@sigyn.local 'python3 -c "import hailo_platform"'
 
 | Device | Model | Input Size | FPS | Latency |
 |--------|-------|------------|-----|---------|
-| Pi 5 + Hailo-8 | YOLOv8n | 640x640 | 25-30 | ~35ms |
-| OAK-D Lite | YOLOv5n/Ultralytics export with `NeuralNetwork` node | 416x416 | 25-30 | ~40-50ms |
-| Jetson Orin Nano | YOLOv8n | 640x640 | 60-80 | ~15ms |
+| Pi 5 + Hailo-8 | YOLOv8n | 512×512 | 25-30 | ~35ms | INT8 / Hailo-8 |
+| OAK-D / OAK-D Lite | YOLOv5n | 416×416 | 18-25 | ~40-50ms | FP16 / Myriad X |
 
 ## 🌐 Useful Links
 

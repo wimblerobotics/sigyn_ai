@@ -97,12 +97,10 @@ This guide helps you build capable AI vision systems for under $500 total hardwa
 | **Pi 5 CPU** | $80 | 5-8 | Cheap, simple | Too slow |
 | **Pi 5 + Hailo-8** | $150 | 25-30 | Fast, low power | Compilation hassles |
 | **OAK-D Lite** | $149 | 15-20 | Includes camera, depth | Smaller models only |
-| **Jetson Orin Nano** | $250 | 40-60 | Most powerful | Requires 19V power |
 
 **Recommendation**:
 - **Best value**: OAK-D Lite ($149 for camera + compute + depth)
 - **Best performance**: Pi 5 + Hailo-8 ($150 compute + accelerator only)
-- **Future-proof**: Save for Jetson Orin Nano
 
 ### Camera Options
 
@@ -257,8 +255,7 @@ TOTAL:                     $665
 
 ```
                       FPS (YOLOv8n 640x640)
-60 |                                        ● Jetson ($250)
-50 |                                  ● Pi+Hailo ($150)
+50 |                            ● Pi+Hailo ($150)
 40 |
 30 |
 20 |                    ● OAK-D ($149)
@@ -278,7 +275,6 @@ TOTAL:                     $665
 ## 🎓 Student / Educator Discounts
 
 ### Hardware
-- **NVIDIA**: Education discount on Jetson products
 - **Raspberry Pi**: Bulk pricing for classrooms
 - **GitHub Student Pack**: Free Colab Pro credits (sometimes)
 

@@ -7,7 +7,7 @@
 **What's Done:**
 - Complete directory structure
 - Core training pipeline with hardware auto-detection
-- Device-specific export scripts (Pi/Hailo, OAK-D, Jetson)
+- Device-specific export scripts (Pi/Hailo, OAK-D)
 - Automated deployment with SSH and rollback
 - RoboFlow integration for dataset management
 - Docker configurations for all workflows
@@ -201,7 +201,7 @@ services:
 **Good First Issues:**
 1. Add support for YOLOv9/v10
 2. Create example notebook for Colab
-3. Add NVIDIA Jetson Nano support (older Jetson)
+3. Add model support for YOLOv9/v10
 4. Improve error messages in scripts
 5. Add visualization tools for bounding boxes
 

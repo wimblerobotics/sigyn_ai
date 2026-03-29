@@ -22,12 +22,8 @@ models/
     │   │   ├── best.hef         # Compiled Hailo model
     │   │   ├── best.onnx        # Intermediate ONNX
     │   │   └── labels.txt       # Class names
-    │   ├── oakd_lite/
-    │   │   ├── best.blob        # Compiled OAK-D model
-    │   │   ├── best.onnx
-    │   │   └── labels.txt
-    │   └── jetson_orin_nano/
-    │       ├── best.engine      # Compiled TensorRT model
+    │   └── oakd_lite/
+    │       ├── best.blob        # Compiled OAK-D model
     │       ├── best.onnx
     │       └── labels.txt
     └── multi_class_oakd_v1/
@@ -37,7 +33,7 @@ models/
 
 1. **Training** → `checkpoints/<name>/weights/best.pt`
 2. **Export** → `exported/<name>/<device>/best.onnx`
-3. **Compilation** → `exported/<name>/<device>/best.{hef,blob,engine}`
+3. **Compilation** → `exported/<name>/<device>/best.{hef,blob}`
 4. **Deployment** → Copy to robot target device
 
 ## Storage Requirements
@@ -46,12 +42,11 @@ models/
 - **ONNX** (.onnx): 10-200 MB
 - **Hailo** (.hef): 5-50 MB (compressed)
 - **OAK-D** (.blob): 5-30 MB
-- **Jetson** (.engine): 10-100 MB
 
 ## Version Control Policy
 
 - Commit reproducible training configs in `configs/training/`
-- Commit deployment-ready exports such as `.hef`, `.blob`, `.onnx`, and `.engine` via Git LFS when they are needed by scripts or docs
+- Commit deployment-ready exports such as `.hef`, `.blob`, and `.onnx` via Git LFS when they are needed by scripts or docs
 - Do not commit Hailo `.har` files, compiler logs, or scratch outputs
 - Pretrained vendor weights downloaded at the repo root (for example `yolov8n.pt`) are local cache files and are ignored
 

@@ -2,6 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 # SPDX-FileCopyrightText: 2026 Sigyn AI Contributors
 #
+# ============================================================
+# NOT YET TESTED — Jetson Orin Nano is not currently deployed
+# in the robot. This script has not been run on real hardware.
+# Use train_pi5_hailo.sh or train_oakd.sh for tested pipelines.
+# ============================================================
+#
 # Complete training pipeline for Jetson Orin Nano
 # Downloads dataset, trains model, exports to ONNX (TensorRT compilation on device)
 

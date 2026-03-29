@@ -40,7 +40,6 @@ Thank you for your interest in contributing to Sigyn AI! This project aims to ma
 - Hyperparameter optimization (Optuna, Ray Tune)
 
 **Export**:
-- NVIDIA Jetson Nano support (older Jetson)
 - Qualcomm Hexagon DSP support
 - Apple Neural Engine export
 - OpenVINO export for Intel NUC
@@ -171,7 +170,7 @@ def test_export_to_onnx(tmp_path):
 ```
 
 ### Manual Testing
-1. Test on at least one device (Pi5/Hailo, OAK-D, or Jetson)
+1. Test on at least one device (Pi5/Hailo or OAK-D)
 2. Verify deployment (dry-run at minimum)
 3. Check training metrics make sense
 

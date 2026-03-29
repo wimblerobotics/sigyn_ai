@@ -7,7 +7,7 @@ This guide walks through the complete workflow from capturing images to deployin
 - Python 3.10 or newer
 - (Optional) NVIDIA GPU with CUDA support
 - RoboFlow account (free tier is fine)
-- Target device (Pi 5 + Hailo, OAK-D, or Jetson)
+- Target device (Pi 5 + Hailo-8, or OAK-D / OAK-D Lite)
 
 ## Installation
 
@@ -57,7 +57,18 @@ python src/utils/roboflow_download.py --list-projects
 
 ## Complete Workflow Example
 
-### Step 1: Capture and Annotate Images
+### Step 5: Capture and Annotate Images
+
+See **[docs/ROBOFLOW_WORKFLOW.md](ROBOFLOW_WORKFLOW.md)** for the complete RoboFlow dataset building guide, including:
+
+- Creating a free RoboFlow account and project
+- Capturing images with the robot joystick (B button = Pi camera, Y button = OAK-D)
+- Correct resize settings: **512 × 512** for Pi Hat, **416 × 416** for OAK-D
+- Augmentation settings (rotation ±10°, bbox brightness ±20%, bbox blur 2.5 px, motion blur 100 px/0°/1 frame)
+- Train/valid/test split (80/10/10)
+- Adding new images to an existing dataset version
+
+### Step 1: Capture and Annotate Images (short version)
 
 **Capture images on your robot:**
 
@@ -213,7 +224,7 @@ If your environment uses a different local image tag, list available images firs
 docker images | grep -i hailo
 ```
 
-**For OAK-D Lite:**
+**For OAK-D Lite** (uses YOLOv5n, 416 × 416, FP16 blob):
 
 Recommended public path:
 
@@ -235,18 +246,6 @@ python src/export/export.py \
     --compile  # Automatically compiles to .blob
 ```
 
-**For Jetson Orin Nano:**
-
-```bash
-python src/export/export.py \
-  --model runs/detect/models/checkpoints/my_detector_v1/weights/best.pt \
-    --device jetson_orin_nano
-
-# Then SCP to Jetson and compile there
-scp models/exported/best/jetson_orin_nano/* ros@jetson.local:~/
-ssh ros@jetson.local "python3 compile_tensorrt.py"
-```
-
 ### Step 7: Configure Robot Deployment
 
 Edit `configs/robots/sigyn.yaml` (or create your own):
@@ -259,7 +258,7 @@ robot:
 hardware:
   cameras:
     main_cam:
-      device: "pi5_hailo8"  # or oakd_lite, jetson_orin_nano
+      device: "pi5_hailo8"  # or oakd_lite
       deployment:
         host: "ros@yourrobot.local"
         model_dir: "~/detector_ws/models/"
@@ -318,8 +317,9 @@ For the current OAK-D path, use the dedicated scripts:
 # Deploy blob + node script
 ./scripts/deploy_oakd.sh -m <run_name>
 
-# On robot
-ros2 launch base oakd_yolo26_detector.launch.py
+# On robot — the launch file name below is specific to `wimblerobotics/Sigyn`.
+# The "26" in the name refers to the YOLOv5 26×26 feature map layer, not a YOLO version.
+ros2 launch sigyn_bringup oakd_yolo26_detector.launch.py
 ```
 
 ## Next Steps
