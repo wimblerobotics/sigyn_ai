@@ -70,11 +70,8 @@ The joystick node ([`wimblerobotics/sigyn_bluetooth_joystick`](https://github.co
 | Physical Button | ROS 2 topic published | Who subscribes |
 |-----------------|----------------------|--------------------|
 | **B** | `/sigyn/take_gripper_picture` | `pi_can_detector` node |
-| **Y** | `/sigyn/take_oakd_picture` | *(not yet implemented — see note below)* |
+| **X** | `/sigyn/take_oakd_picture` | sigyn_oakd_detection
 
-> **⚠️ Log message bug in `joystick_node.cpp`**: the comment for case 3 reads
-> `Physical Y button` but the `RCUTILS_LOG_INFO` string says
-> `"triggered by X button"`. The physical Y button is correct; ignore the log.
 
 #### Pi camera / gripper camera (B button)
 
@@ -98,18 +95,11 @@ def capture_image_callback(self, msg: Bool):
   (override the default with the `training_images_dir` ROS parameter)
 - The node must be running (`pi_can_detector.launch.py`) for captures to work.
 
-#### OAK-D camera (Y button)
+#### OAK-D camera (X button)
 
-> **⚠️ Not yet implemented.** The joystick publishes `/sigyn/take_oakd_picture`
-> but [`wimblerobotics/sigyn_oakd_detection`](https://github.com/wimblerobotics/sigyn_oakd_detection)
-> does not yet subscribe to it. Until that subscriber is added, pressing Y
-> has no effect. For now, use Option B below to collect OAK-D training images.
+- Saves to: ~/sigyn_ws/training_images/oakd/oakd_capture_<YYYYMMDD_HHMMSS_ffffff>.jpg
+- The node must be running (`oakd_detector.launch.py`) for captures to work.
 
-> **Repos that must be public before this guide is fully usable:**
-> - [`wimblerobotics/sigyn_bluetooth_joystick`](https://github.com/wimblerobotics/sigyn_bluetooth_joystick) — joystick publisher
-> - [`wimblerobotics/pi_can_detector`](https://github.com/wimblerobotics/pi_can_detector) — Pi/Hailo detector + gripper image capture
-> - [`wimblerobotics/sigyn_oakd_detection`](https://github.com/wimblerobotics/sigyn_oakd_detection) — OAK-D detector (image capture not yet wired up)
-> - [`wimblerobotics/Sigyn`](https://github.com/wimblerobotics/Sigyn) — full robot bringup + launch files
 
 **Workflow for Pi camera captures**:
 ```bash
