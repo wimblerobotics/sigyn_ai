@@ -114,8 +114,7 @@ systemctl --user status pi-can-detector
 rsync -av ros@sigyn-pi.local:~/training_images/ datasets/raw_captures/pi_gripper/
 ```
 
-### Option B — Manual / Video Extraction
-
+### Option B — Manual / Video Extracti
 For bootstrapping or when the robot is not available:
 
 ```bash

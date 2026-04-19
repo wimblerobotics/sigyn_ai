@@ -1,0 +1,20 @@
+{
+  "ROS2.distro": "jazzy"
+  "workbench.colorTheme": "Default Dark+",
+  "workbench.colorCustomizations": {
+    "editor.background": "#1f1500",
+    "editorGroupHeader.tabsBackground": "#271a00",
+    "editorGroupHeader.noTabsBackground": "#271a00",
+    "sideBar.background": "#271a00",
+    "sideBar.foreground": "#f0d9a0",
+    "activityBar.background": "#3a2500",
+    "activityBar.foreground": "#ffd77a",
+    "statusBar.background": "#3a2500",
+    "statusBar.foreground": "#ffd77a",
+    "titleBar.activeBackground": "#3a2500",
+    "titleBar.activeForeground": "#ffd77a",
+    "titleBar.inactiveBackground": "#271a00",
+    "titleBar.inactiveForeground": "#c49a40",
+    "panel.background": "#231800",
+    "terminal.background": "#231800"
+  }}

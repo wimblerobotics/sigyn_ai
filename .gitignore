@@ -44,7 +44,7 @@ ENV/
 sigyn-venv/
 
 # IDE
-.vscode/
+#.vscode/
 .idea/
 *.swp
 *.swo
